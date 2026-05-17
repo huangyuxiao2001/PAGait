@@ -81,31 +81,39 @@ PAGait/
 
 ---
 
-## 4. Requirements
+# 4. Requirements
 
 The code is implemented with PyTorch and OpenGait.
 
 Recommended environment:
 
 ```text
-Python >= 3.8
-PyTorch >= 1.10
-CUDA >= 11.3
-OpenCV
-NumPy
-PyYAML
-tqdm
+Python 3.8
+PyTorch 1.11.0
+CUDA 11.3
+torchvision 0.12.0
+torchaudio 0.11.0
 ```
 
-Install dependencies:
+We provide the conda environment configuration file:
+
+```text
+opengait.yaml
+```
+
+Create the environment using:
 
 ```bash
-pip install -r requirements.txt
+conda env create -f opengait.yaml
+```
+
+Activate the environment:
+
+```bash
+conda activate gait
 ```
 
 You can also follow the environment setup instructions of [OpenGait](https://github.com/ShiqiYu/OpenGait).
-
----
 
 ## 5. Data Preparation
 
