@@ -1,11 +1,12 @@
 
 # PAGait: Region-Aware Modulation and Cross-Modal Consistency Enhancement for Multi-Modal Gait Recognition
 
-[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)]()
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)]()
+[![Python](https://img.shields.io/badge/Python-3.8-blue.svg)]()
+[![PyTorch](https://img.shields.io/badge/PyTorch-1.11.0-ee4c2c.svg)]()
+[![CUDA](https://img.shields.io/badge/CUDA-11.3-76B900.svg)]()
 [![Status](https://img.shields.io/badge/Status-Under%20Review-orange.svg)]()
 
-Official implementation of the paper:
+Official implementation of PAGait.
 
 > **PAGait: Region-Aware Modulation and Cross-Modal Consistency Enhancement for Multi-Modal Gait Recognition**  
 > Under review.
@@ -22,7 +23,6 @@ The repository contains:
 - Network architecture implementation
 - RAM module and CCE module
 - Dataset preprocessing scripts
-- Visualization tools
 - Configuration files 
 
 Main features of PAGait:
@@ -37,18 +37,18 @@ Main features of PAGait:
 
 ```text
 PAGait/
-├── configs/                    # Configuration files
-├── datasets/                   # Dataset preprocessing scripts
-├── opengait/                   # Model implementation
-│   ├── data/                   # Backbone networks
-│   ├── evaluation/             # SAM and fusion modules
-│   ├── modeling/               # Loss functions
-│   ├── utils/                  # Loss functions
-│   └── main                    # Classification heads
+├── configs/                    # Training configuration files
+├── datasets/                   # Dataset split files and preprocessing scripts
+├── opengait/                   # Main framework
+│   ├── data/                   # Data loading and dataset processing
+│   ├── evaluation/             # Evaluation and testing
+│   ├── modeling/               # Network architectures and modules
+│   ├── utils/                  # Utility functions
+│   └── main.py                 # Program entry
 ├── README.md
-├── train.sh
-└── test.sh
-```
+├── train.sh                    # Training script
+└── test.sh                     # Evaluation script
+````
 
 ---
 
@@ -68,7 +68,9 @@ Please download the datasets from the official project pages and organize them a
 
 ---
 
-## 3.2 Dataset Directory Structure
+## 3.2 Dataset Split Files and Preprocessing Scripts
+- The official training/testing split files for **Gait3D** and **CCPG** are provided by the original dataset authors.
+- The split files for **MultiSubjects-Gait** are provided in this repository.
 
 Example:
 
@@ -85,13 +87,8 @@ datasets/
 └── ln_sil_parsing.py
 ```
 
-Each dataset should contain:
-- Training/testing split files
+Each dataset should contain the corresponding training/testing split files.
 
-### Dataset Split Files
-
-- The official training/testing split files for **Gait3D** and **CCPG** are provided by the original dataset authors.
-- The split files for **MultiSubjects-Gait** are provided in this repository.
 ## 3.3 Human Parsing Generation
 
 For the Gait3D dataset, the official human parsing data is publicly available.
@@ -234,10 +231,12 @@ Replace `Dataset-name.yaml` with the corresponding dataset configuration file.
 
 # 9. Citation
 
+If you find this repository useful for your research, please cite:
+
 ```bibtex
 @article{pagait2026,
   title={PAGait: Region-Aware Modulation and Cross-Modal Consistency Enhancement for Multi-Modal Gait Recognition},
-  author={Author Name},
+  author={Han, Zhijie and Huang, Yuxiao and Wang, Yalu and Zhao, Yanxiang and Guo, Li},
   journal={Under Review},
   year={2026}
 }
@@ -254,19 +253,13 @@ This repository is built upon several excellent open-source gait recognition pro
 - GaitPart
 - GaitGL
 
-We sincerely thank the authors for their contributions.
+We sincerely thank the authors for their valuable contributions to the gait recognition community.
 
 ---
 
-# 11. License
+# 11. Contact
 
-This project is released under the MIT License.
-
----
-
-# 12. Contact
-
-For questions or collaborations, please open an issue or contact:
+For questions, discussions, or collaborations, please open an issue or contact:
 
 ```text
 15515952990@163.com
