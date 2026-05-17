@@ -70,7 +70,7 @@ Please download the datasets from the official project pages and organize them a
 
 ## 3.2 Dataset Split Files and Preprocessing Scripts
 - The official training/testing split files for **Gait3D** and **CCPG** are provided by the original dataset authors.
-- The split files for **MultiSubjects-Gait** are provided in this repository.
+- The split files for **MultiSubjects** are provided in this repository.
 
 Example:
 
