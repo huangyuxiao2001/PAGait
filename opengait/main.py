@@ -123,12 +123,8 @@ def initialization(cfgs, training):
 
     msg_mgr.log_info(engine_cfg)
 
-    # ✅ 固定随机数
-    base_seed = 521
-    init_seeds(base_seed, cuda_deterministic=True)
-
-    # 🔹 输出随机数种子
-    print(f"[INFO] Using fixed random seed: {base_seed}")
+    seed = torch.distributed.get_rank()
+    init_seeds(seed)
 
 
 def run_model(cfgs, training):
