@@ -1,266 +1,378 @@
+# PAGait: Parsing-Aware Multi-modal Gait Recognition
 
-# PAGait: Region-Aware Modulation and Cross-Modal Consistency Enhancement for Multi-Modal Gait Recognition
+[![Manuscript Status](https://img.shields.io/badge/Manuscript-Under%20Review-blue)](https://github.com/huangyuxiao2001/PAGait)
+[![Code](https://img.shields.io/badge/Code-PyTorch-green)](https://pytorch.org/)
+[![Framework](https://img.shields.io/badge/Framework-OpenGait-orange)](https://github.com/ShiqiYu/OpenGait)
 
-[![Python](https://img.shields.io/badge/Python-3.8-blue.svg)]()
-[![PyTorch](https://img.shields.io/badge/PyTorch-1.11.0-ee4c2c.svg)]()
-[![CUDA](https://img.shields.io/badge/CUDA-11.3-76B900.svg)]()
-[![Status](https://img.shields.io/badge/Status-Under%20Review-orange.svg)]()
+This repository provides the official implementation of **PAGait**, a multi-modal gait recognition framework based on **silhouette sequences** and **human parsing sequences**.
 
-Official implementation of PAGait.
+PAGait aims to improve gait recognition robustness under complex scenarios such as clothing changes, occlusions, and background variations. It introduces two key modules:
 
-> **PAGait: Region-Aware Modulation and Cross-Modal Consistency Enhancement for Multi-Modal Gait Recognition**  
-> Under review.
+- **Region-aware Adaptive Modulation (RAM)**, which models region-level differences by adaptively modulating parsing features according to different target body regions.
+- **Cross-modal Consistency Enhancement (CCE)**, which enhances consistent cross-modal responses between silhouette and human parsing modalities while suppressing modality-dominant activations.
 
----
-
-# 1. Introduction
-
-This repository provides the official implementation of PAGait, a multi-modal gait recognition framework designed for robust fusion of silhouette sequences and human parsing sequences.
-
-The repository contains:
-
-- Training and testing code
-- Network architecture implementation
-- RAM module and CCE module
-- Dataset preprocessing scripts
-- Configuration files 
-
-Main features of PAGait:
-
-- Region-aware Adaptive Modulation (SAM)
-- Cross-modal consistency enhancement (CCE)
-- Robust gait representation learning under challenging conditions
+The implementation is built based on [OpenGait](https://github.com/ShiqiYu/OpenGait).
 
 ---
 
-# 2. Repository Structure
+## News
+
+- `[2026-xx-xx]` Code and configuration files are released.
+- `[2026-xx-xx]` Pretrained models will be released after publication.
+
+---
+
+## 1. Introduction
+
+Gait recognition aims to identify individuals according to their walking patterns. Existing silhouette-based methods have achieved promising performance in controlled scenarios. However, their robustness may degrade under clothing changes, occlusions, and complex real-world environments.
+
+To address these challenges, PAGait introduces human parsing sequences as an additional modality to provide fine-grained body-part semantic information. Instead of simply concatenating silhouette and parsing features, PAGait explicitly models regional differences and cross-modal response consistency.
+
+The overall pipeline consists of the following stages:
+
+1. Preprocessing of silhouette and human parsing sequences;
+2. First-stage feature encoding with two independent CNN branches;
+3. Parallel feature modeling with RAM and CCE;
+4. Second-stage feature encoding;
+5. Feature post-processing with temporal pooling, HPP, fully connected layers, and BNNeck.
+
+---
+
+## 2. Main Modules
+
+### 2.1 Region-aware Adaptive Modulation
+
+The Region-aware Adaptive Modulation module uses human parsing masks to construct coarse body regions and adaptively modulates parsing features according to different target regions.
+
+The coarse body regions are defined as follows:
+
+| Region | Semantic Parts |
+| :--- | :--- |
+| Upper region | Head |
+| Middle region | Torso and upper limbs |
+| Lower region | Lower limbs and feet |
+
+For each target region, RAM enhances target-region parsing features and suppresses non-target regions. The region-modulated parsing features are then used to generate region-conditioned fusion weights for silhouette and parsing features.
+
+### 2.2 Cross-modal Consistency Enhancement
+
+The Cross-modal Consistency Enhancement module models response consistency between silhouette and human parsing modalities. It emphasizes feature elements with balanced modality-normalized responses and suppresses modality-dominant activations, improving the stability and robustness of multi-modal feature fusion.
+
+---
+
+## 3. Repository Structure
 
 ```text
 PAGait/
-├── configs/                    # Training configuration files
-├── datasets/                   # Dataset split files and preprocessing scripts
-├── opengait/                   # Main framework
-│   ├── data/                   # Data loading and dataset processing
-│   ├── evaluation/             # Evaluation and testing
-│   ├── modeling/               # Network architectures and modules
-│   ├── utils/                  # Utility functions
-│   └── main.py                 # Program entry
-├── README.md
-├── train.sh                    # Training script
-└── test.sh                     # Evaluation script
-````
+├── configs/
+│   ├── PAGait_Gait3D.yaml
+│   ├── PAGait_CCPG.yaml
+│   ├── PAGait_MultiSubjectD.yaml
+│   ├── PAGait_MultiSubjectP.yaml
+│   └── PAGait_MultiSubjectS.yaml
+├── datasets/
+│   └── README.md
+├── docs/
+├── opengait/
+│   ├── data/
+│   ├── evaluation/
+│   ├── modeling/
+│   ├── utils/
+│   └── main.py
+├── output/
+├── train.sh
+├── test.sh
+├── requirements.txt
+└── README.md
+```
 
 ---
 
-# 3. Dataset Preparation
+## 4. Requirements
 
-## 3.1 Supported Datasets
+The code is implemented with PyTorch and OpenGait.
 
-The framework currently supports the following public gait datasets:
+Recommended environment:
 
-| Dataset | Official Link |
-|---|---|
-| Gait3D | https://gait3d.github.io |
-| CCPG | https://github.com/BNU-IVC/CCPG |
-| MultiSubjects-Gait | https://huggingface.co/datasets/Henu-Software/Henu-MultiSubjects |
+```text
+Python >= 3.8
+PyTorch >= 1.10
+CUDA >= 11.3
+OpenCV
+NumPy
+PyYAML
+tqdm
+```
 
-Please download the datasets from the official project pages and organize them according to the required directory structure.
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+You can also follow the environment setup instructions of [OpenGait](https://github.com/ShiqiYu/OpenGait).
 
 ---
 
-## 3.2 Dataset Split Files and Preprocessing Scripts
-- The official training/testing split files for **Gait3D** and **CCPG** are provided by the original dataset authors.
-- The split files for **MultiSubjects** are provided in this repository.
+## 5. Data Preparation
 
-Example:
+The original datasets are **not redistributed** in this repository due to license and redistribution restrictions. Please download the datasets from the official providers.
+
+### 5.1 Dataset Links and References
+
+| Dataset | Official Link | Reference DOI |
+| :--- | :--- | :--- |
+| Gait3D | https://gait3d.github.io | `10.1109/CVPR52688.2022.01959` |
+| CCPG | https://github.com/BNU-IVC/CCPG | `10.1109/CVPR52729.2023.01328` |
+| MultiSubjects | https://huggingface.co/datasets/Henu-Software/Henu-MultiSubjects | `10.1016/j.cviu.2024.104193` |
+| MultiSubjects-Gait | https://huggingface.co/datasets/Henu-Software/MultiSubjects-Gait | `10.1109/ICME59968.2025.11209877` |
+
+Please cite the corresponding dataset papers if you use these datasets.
+
+### 5.2 Human Parsing Sequences
+
+Human parsing sequences are generated frame by frame from the original RGB videos or image sequences. In this project, human parsing maps are used as an additional modality together with silhouette sequences.
+
+The generated parsing maps should be aligned with the corresponding silhouette sequences.
+
+The expected input resolution is:
+
+```text
+64 × 44
+```
+
+### 5.3 Expected Data Format
+
+Please organize the data following the OpenGait format. A typical structure is shown below:
 
 ```text
 datasets/
 ├── Gait3D/
-│   └── Gait3D.json
+│   ├── silhouettes/
+│   └── parsings/
 ├── CCPG/
-│   └── CCPG.json
-├── MultiSubjects-Gait/
-│   ├── MultiSubjects-D.json
-│   ├── MultiSubjects-P.json
-│   └── MultiSubjects-S.json
-└── ln_sil_parsing.py
+│   ├── silhouettes/
+│   └── parsings/
+└── MultiSubjects-Gait/
+    ├── silhouettes/
+    └── parsings/
 ```
 
-Each dataset should contain the corresponding training/testing split files.
-
-## 3.3 Human Parsing Generation
-
-For the Gait3D dataset, the official human parsing data is publicly available.
-
-For the CCPG and MultiSubjects-Gait datasets, human parsing sequences can be generated using the official CDGNet parsing model:
-
-- CDGNet-Parsing: https://github.com/Gait3D/CDGNet-Parsing
-
-Please follow the instructions in the official repository to:
-
-1. Extract RGB frames from gait sequences
-2. Run the CDGNet parsing model
-3. Generate human parsing masks
-4. Convert parsing results into the required training format
-
-After generation, please keep the same directory structure as the original dataset.
-
-
-## 3.4 Data Preprocessing
-
-After preparing the silhouette data and human parsing data, you need to link the two modalities into a unified directory structure for training.
-
-The preprocessing script is located in:
-
-```text
-datasets/ln_sil_parsing.py
-
-python datasets/ln_sil_parsing.py \
-    --parsing_data_path /path/to/parsing_data \
-    --silhouette_data_path /path/to/silhouette_data \
-    --output_path /path/to/output_data
-
-# 4. Installation
-
-## 4.1 Requirements
-
-The project is tested with the following environment:
-
-| Package | Version |
-|---|---|
-| Python | 3.8 |
-| PyTorch | 1.11.0 |
-| CUDA | 11.3 |
-| torchvision | 0.12.0 |
-| torchaudio | 0.11.0 |
+The exact data path should be configured in the corresponding YAML configuration file under the `configs/` directory.
 
 ---
 
-## 4.2 Install Dependencies
+## 6. Training
 
-We provide the complete conda environment configuration file:
-
-```text
-opengait.yaml
-```
-
-Create the environment using:
+### 6.1 Train on Gait3D
 
 ```bash
-conda env create -f opengait.yaml
-```
-
-Activate the environment:
-
-```bash
-conda activate gait
-```
-
-
-# 5. Training
-
-Run the training script using:
-
-```bash
-MASTER_ADDR=localhost \
-MASTER_PORT=12355 \
-RANK=x \
-WORLD_SIZE=x \
-CUDA_VISIBLE_DEVICES=x \
-python -m torch.distributed.launch \
-    --nproc_per_node=x \
-    PAGait/main.py \
-    --cfgs ./configs/PAGait/Dataset-name.yaml \
+CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch \
+    --nproc_per_node=1 \
+    opengait/main.py \
+    --cfgs ./configs/PAGait_Gait3D.yaml \
     --phase train \
     --log_to_file
 ```
 
-### Arguments
-
-| Argument | Description |
-|---|---|
-| `RANK` | Rank of current node |
-| `WORLD_SIZE` | Total number of nodes |
-| `CUDA_VISIBLE_DEVICES` | GPU IDs used for training |
-| `--nproc_per_node` | Number of GPUs used for training |
-| `--cfgs` | Path to configuration file |
-| `--phase train` | Training mode |
-
-Replace `Dataset-name.yaml` with the corresponding dataset configuration file, for example:
-
-```text
-configs/PAGait_Gait3D.yaml
-configs/PAGait_CCPG.yaml
-configs/PAGait_MultiSubjectD.yaml
-configs/PAGait_MultiSubjectP.yaml
-configs/PAGait_MultiSubjectS.yaml
-```
-
-# 6. Evaluation
-
-Run the evaluation script using:
+### 6.2 Train on CCPG
 
 ```bash
-MASTER_ADDR=localhost \
-MASTER_PORT=12355 \
-RANK=x \
-WORLD_SIZE=x \
-CUDA_VISIBLE_DEVICES=x,x \
-python -m torch.distributed.launch \
-    --nproc_per_node=x \
-    PAGait/main.py \
-    --cfgs ./configs/PAGait/Dataset-name.yaml \
+CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch \
+    --nproc_per_node=1 \
+    opengait/main.py \
+    --cfgs ./configs/PAGait_CCPG.yaml \
+    --phase train \
+    --log_to_file
+```
+
+### 6.3 Train on MultiSubjects-Gait
+
+For the MultiSubjects-Gait dataset, we evaluate the model on three subsets: D, P, and S.
+
+Train on the D subset:
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch \
+    --nproc_per_node=1 \
+    opengait/main.py \
+    --cfgs ./configs/PAGait_MultiSubjectD.yaml \
+    --phase train \
+    --log_to_file
+```
+
+Train on the P subset:
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch \
+    --nproc_per_node=1 \
+    opengait/main.py \
+    --cfgs ./configs/PAGait_MultiSubjectP.yaml \
+    --phase train \
+    --log_to_file
+```
+
+Train on the S subset:
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch \
+    --nproc_per_node=1 \
+    opengait/main.py \
+    --cfgs ./configs/PAGait_MultiSubjectS.yaml \
+    --phase train \
+    --log_to_file
+```
+
+---
+
+## 7. Evaluation
+
+### 7.1 Evaluate on Gait3D
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch \
+    --nproc_per_node=1 \
+    opengait/main.py \
+    --cfgs ./configs/PAGait_Gait3D.yaml \
     --phase test \
     --log_to_file
 ```
 
-### Arguments
+### 7.2 Evaluate on CCPG
 
-| Argument | Description |
-|---|---|
-| `RANK` | Rank of current node |
-| `WORLD_SIZE` | Total number of nodes |
-| `CUDA_VISIBLE_DEVICES` | GPU IDs used for evaluation |
-| `--nproc_per_node` | Number of GPUs used for evaluation |
-| `--cfgs` | Path to configuration file |
-| `--phase test` | Evaluation mode |
-| `--log_to_file` | Save logs to file |
+```bash
+CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch \
+    --nproc_per_node=1 \
+    opengait/main.py \
+    --cfgs ./configs/PAGait_CCPG.yaml \
+    --phase test \
+    --log_to_file
+```
 
-Replace `Dataset-name.yaml` with the corresponding dataset configuration file.
+### 7.3 Evaluate on MultiSubjects-Gait
 
-# 9. Citation
+Evaluate on the D subset:
 
-If you find this repository useful for your research, please cite:
+```bash
+CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch \
+    --nproc_per_node=1 \
+    opengait/main.py \
+    --cfgs ./configs/PAGait_MultiSubjectD.yaml \
+    --phase test \
+    --log_to_file
+```
+
+Evaluate on the P subset:
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch \
+    --nproc_per_node=1 \
+    opengait/main.py \
+    --cfgs ./configs/PAGait_MultiSubjectP.yaml \
+    --phase test \
+    --log_to_file
+```
+
+Evaluate on the S subset:
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch \
+    --nproc_per_node=1 \
+    opengait/main.py \
+    --cfgs ./configs/PAGait_MultiSubjectS.yaml \
+    --phase test \
+    --log_to_file
+```
+
+---
+
+## 8. Results
+
+### 8.1 Results on Gait3D
+
+| Method | Rank-1 | Rank-5 | mAP | mINP |
+| :--- | ---: | ---: | ---: | ---: |
+| PAGait | 85.0 | - | - | - |
+
+### 8.2 Results on CCPG
+
+| Method | CL-FULL Rank-1 | CL-UP Rank-1 | CL-DN Rank-1 |
+| :--- | ---: | ---: | ---: |
+| PAGait | 88.7 | 95.7 | 87.9 |
+
+### 8.3 Results on MultiSubjects-Gait
+
+| Method | Average Rank-1 |
+| :--- | ---: |
+| PAGait | 80.2 |
+
+More detailed comparisons and ablation studies are provided in the manuscript.
+
+---
+
+## 9. Pretrained Models
+
+Pretrained models will be released after publication.
+
+| Dataset | Checkpoint |
+| :--- | :--- |
+| Gait3D | Coming soon |
+| CCPG | Coming soon |
+| MultiSubjects-Gait-D | Coming soon |
+| MultiSubjects-Gait-P | Coming soon |
+| MultiSubjects-Gait-S | Coming soon |
+
+---
+
+## 10. Visualization
+
+Visualization scripts for RAM and CCE feature responses will be released after publication.
+
+The visualization results can be used to analyze:
+
+- region-aware responses generated by different RAM instances;
+- cross-modal consistency-enhanced responses generated by CCE;
+- differences between silhouette features, parsing features, and fused features.
+
+---
+
+## 11. Citation
+
+If you find this repository useful for your research, please cite our paper:
 
 ```bibtex
-@article{pagait2026,
+@article{han2026pagait,
   title={PAGait: Region-Aware Modulation and Cross-Modal Consistency Enhancement for Multi-Modal Gait Recognition},
-  author={Han, Zhijie and Huang, Yuxiao and Wang, Yalu and Zhao, Yanxiang and Guo, Li},
-  journal={Under Review},
+  author={Han, Zhijie and Huang, Yuxiao and Wang, Yalu and Zhao, Yanxiang},
+  journal={Under review},
   year={2026}
 }
 ```
 
 ---
 
-# 10. Acknowledgements
+## 12. Acknowledgements
 
-This repository is built upon several excellent open-source gait recognition projects, including:
+This project is built upon [OpenGait](https://github.com/ShiqiYu/OpenGait).
 
-- GaitSet
-- OpenGait
-- GaitPart
-- GaitGL
-
-We sincerely thank the authors for their valuable contributions to the gait recognition community.
+We thank the authors of OpenGait, DeepGaitV2, CDGNet, Gait3D, CCPG, MultiSubjects, and other related gait recognition works for their valuable contributions to the community.
 
 ---
 
-# 11. Contact
+## 13. License
 
-For questions, discussions, or collaborations, please open an issue or contact:
+This project is released for academic research purposes only.
+
+Please follow the licenses of the original datasets and the OpenGait framework. The datasets used in this project are not redistributed in this repository due to license and redistribution restrictions.
+
+---
+
+## 14. Contact
+
+For questions, please contact:
 
 ```text
-15515952990@163.com
+Yuxiao Huang
+Email: 15515952990@163.com
+GitHub: https://github.com/huangyuxiao2001
 ```
