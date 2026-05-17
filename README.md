@@ -60,7 +60,7 @@ The framework currently supports the following public gait datasets:
 
 | Dataset | Official Link |
 |---|---|
-| Gait3D | https://gait3d.github.io/gait3d/ |
+| Gait3D | https://gait3d.github.io |
 | CCPG | https://github.com/BNU-IVC/CCPG |
 | MultiSubjects-Gait | https://huggingface.co/datasets/Henu-Software/Henu-MultiSubjects |
 
