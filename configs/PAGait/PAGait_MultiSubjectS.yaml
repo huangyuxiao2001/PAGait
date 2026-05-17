@@ -1,0 +1,115 @@
+# =========================
+# Dataset 配置
+# =========================
+data_cfg:
+  dataset_name: MultiSubjects
+  dataset_root: /root/lanyun-tmp/Data/MultiSubject-Slink
+  dataset_partition: ./datasets/MultiSubjects/MultiSubjects-S.json
+  num_workers: 1
+  data_in_use: [True, True]        # heatmap, sil
+  remove_no_gallery: false
+  test_dataset_name: MultiSubjects
+  sampler:
+    batch_shuffle: true
+    batch_size: 8                  # 每 batch 8 个身份
+    frames_num_fixed: 20           # 每个身份采样 20 帧
+    frames_skip_num: 2             # 随机帧间隔
+    sample_type: fixed_ordered
+    type: TripletSampler
+
+# =========================
+# Evaluator 配置
+# =========================
+evaluator_cfg:
+  enable_float16: false             # eval 用半精度可能不稳定
+  restore_ckpt_strict: true
+  restore_hint: 0
+  save_name: PAGait
+  eval_func: evaluate_MultiSubjectsS
+  sampler:
+    batch_shuffle: false
+    batch_size: 1
+    sample_type: all_ordered
+    frames_all_limit: 720
+  metric: euc
+  transform:
+    - type: BaseSilTransform
+
+# =========================
+# Loss 配置
+# =========================
+loss_cfg:
+  - loss_term_weights: 1.0
+    margin: 0.2
+    type: TripletLoss
+    log_prefix: triplet
+  - loss_term_weights: 0.3             # Softmax 权重降低，防过拟合
+    scale: 16
+    type: CrossEntropyLoss
+    log_prefix: softmax
+    log_accuracy: true
+
+# =========================
+# 模型配置
+# =========================
+model_cfg:
+  model: PAGait
+  RAMLayersP:
+      reduction: 16        # 通道缩减系数（用于FC层降维，常见取值8/16，16更常用）
+      with_max_pool: True  # 是否在池化时结合最大池化（True：avg_pool+max_pool，False：仅avg_pool）
+  Backbone:
+    in_channels: 3
+    blocks: [1, 2, 2, 1]
+    C: 2
+  SeparateBNNecks:
+    class_num: 527
+
+# =========================
+# 优化器 & Scheduler
+# =========================
+optimizer_cfg:
+  solver: AdamW
+  lr: 0.0005                # 小数据集使用适中学习率
+  weight_decay: 0.0001      # 适当权重衰减防过拟合
+
+scheduler_cfg:
+  scheduler: CosineAnnealingLR
+  warmup_steps: 10000       # 前10000轮保持初始学习率
+  T_max: 20000              # 从10000轮开始，20000轮内完成衰减
+  eta_min: 0.000001         # 最小学习率
+
+# =========================
+# Trainer 配置
+# =========================
+trainer_cfg:
+  enable_float16: false              # 小数据集关闭半精度
+  with_test: true                    # 训练中周期性验证
+  fix_BN: true                       # 小 batch 下固定 BN 统计量
+  log_iter: 100
+  restore_ckpt_strict: true
+  restore_hint: 0
+  save_iter: 1000
+  save_name: PAGait
+  sync_BN: false                     # 单机训练关闭同步 BN
+  total_iter: 60000                  # 总迭代次数 = 预热10000 + 衰减50000
+  sampler:
+    batch_shuffle: true
+    batch_size:
+      - 32 # TripletSampler, batch_size[0] indicates Number of Identity
+      - 2  #                 batch_size[1] indicates Samples sequqnce for each Identity
+    frames_num_fixed: 30 # fixed frames number for training
+    frames_skip_num: 4
+    sample_type: fixed_ordered # fixed control input frames number, unordered for controlling order of input tensor; Other options: unfixed_ordered or all_ordered
+    type: TripletSampler
+  transform:
+    - type: Compose
+      trf_cfg:
+        - type: RandomPerspective
+          prob: 0.2
+        - type: BaseParsingCuttingTransform
+        - type: RandomHorizontalFlip
+          prob: 0.2
+        - type: RandomRotate
+          prob: 0.1
+
+
