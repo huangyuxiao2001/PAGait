@@ -1,5 +1,4 @@
 # PAGait: Parsing-Aware Multi-modal Gait Recognition
-[![DOI](https://zenodo.org/badge/1238402679.svg)](https://doi.org/10.5281/zenodo.20257768)
 [![Manuscript Status](https://img.shields.io/badge/Manuscript-Under%20Review-blue)](https://github.com/huangyuxiao2001/PAGait)
 [![Code](https://img.shields.io/badge/Code-PyTorch-green)](https://pytorch.org/)
 [![Framework](https://img.shields.io/badge/Framework-OpenGait-orange)](https://github.com/ShiqiYu/OpenGait)
