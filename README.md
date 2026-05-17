@@ -1,15 +1,6 @@
 
 # PAGait: Region-Aware Modulation and Cross-Modal Consistency Enhancement for Multi-Modal Gait Recognition
 
-[![Manuscript Status](https://img.shields.io/badge/Manuscript-Under%20Review-blue)](https://github.com/lpl8848/BAPnP_Solver)
-
-This repository contains the MATLAB simulations and C++ implementation for the paper:
-
-> **"BAPnP: A Barycentric Affine Invariant Linear Solver for Robust and Efficient Perspective-$n$-Point Pose Estimation"**  
-> *Under review at **The Visual Computer** (Springer).*
-
-# PAGait: Region-Aware Modulation and Cross-Modal Consistency Enhancement for Multi-Modal Gait Recognition
-
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)]()
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)]()
 [![Status](https://img.shields.io/badge/Status-Under%20Review-orange.svg)]()
@@ -29,16 +20,15 @@ The repository contains:
 
 - Training and testing code
 - Network architecture implementation
-- SAM module and consistency enhancement module
+- RAM module and CCE module
 - Dataset preprocessing scripts
 - Visualization tools
-- Configuration files and checkpoints
+- Configuration files 
 
 Main features of PAGait:
 
-- Structure-aware Adaptive Modulation (SAM)
-- Cross-modal consistency enhancement
-- Multi-modal feature fusion
+- Region-aware Adaptive Modulation (SAM)
+- Cross-modal consistency enhancement (CCE)
 - Robust gait representation learning under challenging conditions
 
 ---
@@ -49,18 +39,15 @@ Main features of PAGait:
 PAGait/
 ├── configs/                    # Configuration files
 ├── datasets/                   # Dataset preprocessing scripts
-├── modeling/                   # Model implementation
-│   ├── backbone/               # Backbone networks
-│   ├── modules/                # SAM and fusion modules
-│   ├── losses/                 # Loss functions
-│   └── heads/                  # Classification heads
-├── tools/
-│   ├── train.py                # Training script
-│   ├── test.py                 # Evaluation script
-│   └── visualization.py        # Visualization tools
-├── output/                     # Logs and checkpoints
+├── opengait/                   # Model implementation
+│   ├── data/                   # Backbone networks
+│   ├── evaluation/             # SAM and fusion modules
+│   ├── modeling/               # Loss functions
+│   ├── utils/                  # Loss functions
+│   └── main                    # Classification heads
 ├── README.md
-└── requirements.txt
+├── train.sh
+└── test.sh
 ```
 
 ---
@@ -69,13 +56,15 @@ PAGait/
 
 ## 3.1 Supported Datasets
 
-The framework supports the following public gait datasets:
+The framework currently supports the following public gait datasets:
 
-- Gait3D
-- CASIA-B
-- OUMVLP
-- GREW
-- SUSTech1K
+| Dataset | Official Link |
+|---|---|
+| Gait3D | https://gait3d.github.io/gait3d/ |
+| CCPG | https://github.com/BNU-IVC/CCPG |
+| MultiSubjects-Gait | https://huggingface.co/datasets/Henu-Software/Henu-MultiSubjects |
+
+Please download the datasets from the official project pages and organize them according to the required directory structure.
 
 ---
 
@@ -86,133 +75,162 @@ Example:
 ```text
 datasets/
 ├── Gait3D/
-│   ├── silhouettes/
-│   ├── parsing/
-│   └── split/
-├── CASIA-B/
-└── OUMVLP/
+│   └── Gait3D.json
+├── CCPG/
+│   └── CCPG.json
+├── MultiSubjects-Gait/
+│   ├── MultiSubjects-D.json
+│   ├── MultiSubjects-P.json
+│   └── MultiSubjects-S.json
+└── ln_sil_parsing.py
 ```
 
 Each dataset should contain:
-
-- Silhouette sequences
-- Human parsing sequences
 - Training/testing split files
 
----
+### Dataset Split Files
 
+- The official training/testing split files for **Gait3D** and **CCPG** are provided by the original dataset authors.
+- The split files for **MultiSubjects-Gait** are provided in this repository.
 ## 3.3 Human Parsing Generation
 
-Human parsing sequences can be generated using off-the-shelf human parsing models.
+For the Gait3D dataset, the official human parsing data is publicly available.
 
-Example workflow:
+For the CCPG and MultiSubjects-Gait datasets, human parsing sequences can be generated using the official CDGNet parsing model:
 
-1. Extract RGB frames
-2. Run human parsing model
-3. Save parsing masks
-4. Convert to training format
+- CDGNet-Parsing: https://github.com/Gait3D/CDGNet-Parsing
 
----
+Please follow the instructions in the official repository to:
+
+1. Extract RGB frames from gait sequences
+2. Run the CDGNet parsing model
+3. Generate human parsing masks
+4. Convert parsing results into the required training format
+
+After generation, please keep the same directory structure as the original dataset.
+
 
 ## 3.4 Data Preprocessing
 
-The preprocessing scripts are located in:
+After preparing the silhouette data and human parsing data, you need to link the two modalities into a unified directory structure for training.
+
+The preprocessing script is located in:
 
 ```text
-datasets/
-```
+datasets/ln_sil_parsing.py
 
-Example:
-
-```bash
-python datasets/preprocess_gait3d.py
-```
-
----
+python datasets/ln_sil_parsing.py \
+    --parsing_data_path /path/to/parsing_data \
+    --silhouette_data_path /path/to/silhouette_data \
+    --output_path /path/to/output_data
 
 # 4. Installation
 
 ## 4.1 Requirements
 
-- Python 3.8+
-- PyTorch 2.0+
-- CUDA 11.7+ (recommended)
+The project is tested with the following environment:
 
-Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
+| Package | Version |
+|---|---|
+| Python | 3.8 |
+| PyTorch | 1.11.0 |
+| CUDA | 11.3 |
+| torchvision | 0.12.0 |
+| torchaudio | 0.11.0 |
 
 ---
+
+## 4.2 Install Dependencies
+
+We provide the complete conda environment configuration file:
+
+```text
+opengait.yaml
+```
+
+Create the environment using:
+
+```bash
+conda env create -f opengait.yaml
+```
+
+Activate the environment:
+
+```bash
+conda activate gait
+```
+
 
 # 5. Training
 
-## 5.1 Single GPU Training
+Run the training script using:
 
 ```bash
-python tools/train.py \
-    --config configs/gait3d.yaml
+MASTER_ADDR=localhost \
+MASTER_PORT=12355 \
+RANK=x \
+WORLD_SIZE=x \
+CUDA_VISIBLE_DEVICES=x \
+python -m torch.distributed.launch \
+    --nproc_per_node=x \
+    PAGait/main.py \
+    --cfgs ./configs/PAGait/Dataset-name.yaml \
+    --phase train \
+    --log_to_file
 ```
 
----
+### Arguments
 
-## 5.2 Multi-GPU Training
+| Argument | Description |
+|---|---|
+| `RANK` | Rank of current node |
+| `WORLD_SIZE` | Total number of nodes |
+| `CUDA_VISIBLE_DEVICES` | GPU IDs used for training |
+| `--nproc_per_node` | Number of GPUs used for training |
+| `--cfgs` | Path to configuration file |
+| `--phase train` | Training mode |
 
-```bash
-torchrun --nproc_per_node=4 tools/train.py \
-    --config configs/gait3d.yaml
+Replace `Dataset-name.yaml` with the corresponding dataset configuration file, for example:
+
+```text
+configs/PAGait_Gait3D.yaml
+configs/PAGait_CCPG.yaml
+configs/PAGait_MultiSubjectD.yaml
+configs/PAGait_MultiSubjectP.yaml
+configs/PAGait_MultiSubjectS.yaml
 ```
-
----
 
 # 6. Evaluation
 
-```bash
-python tools/test.py \
-    --config configs/gait3d.yaml \
-    --checkpoint output/model_best.pth
-```
-
----
-
-# 7. Visualization
-
-We provide visualization tools for:
-
-- Attention maps
-- Cross-modal response consistency
-- Feature activation statistics
-- Region-aware modulation analysis
-
-Example:
+Run the evaluation script using:
 
 ```bash
-python tools/visualization.py \
-    --config configs/gait3d.yaml \
-    --checkpoint output/model_best.pth
+MASTER_ADDR=localhost \
+MASTER_PORT=12355 \
+RANK=x \
+WORLD_SIZE=x \
+CUDA_VISIBLE_DEVICES=x,x \
+python -m torch.distributed.launch \
+    --nproc_per_node=x \
+    PAGait/main.py \
+    --cfgs ./configs/PAGait/Dataset-name.yaml \
+    --phase test \
+    --log_to_file
 ```
 
----
+### Arguments
 
-# 8. Experimental Results
+| Argument | Description |
+|---|---|
+| `RANK` | Rank of current node |
+| `WORLD_SIZE` | Total number of nodes |
+| `CUDA_VISIBLE_DEVICES` | GPU IDs used for evaluation |
+| `--nproc_per_node` | Number of GPUs used for evaluation |
+| `--cfgs` | Path to configuration file |
+| `--phase test` | Evaluation mode |
+| `--log_to_file` | Save logs to file |
 
-## Gait3D
-
-| Method | Rank-1 | mAP |
-|---|---|---|
-| Baseline | -- | -- |
-| PAGait | -- | -- |
-
----
-
-## CASIA-B
-
-| Condition | NM | BG | CL |
-|---|---|---|---|
-| PAGait | -- | -- | -- |
-
----
+Replace `Dataset-name.yaml` with the corresponding dataset configuration file.
 
 # 9. Citation
 
@@ -251,5 +269,5 @@ This project is released under the MIT License.
 For questions or collaborations, please open an issue or contact:
 
 ```text
-your_email@example.com
+15515952990@163.com
 ```
