@@ -1,5 +1,5 @@
-# PAGait
-# BAPnP: A Barycentric Affine Invariant Linear Solver for Robust and Efficient Perspective-n-Point Pose Estimation
+
+# PAGait: Region-Aware Modulation and Cross-Modal Consistency Enhancement for Multi-Modal Gait Recognition
 
 [![Manuscript Status](https://img.shields.io/badge/Manuscript-Under%20Review-blue)](https://github.com/lpl8848/BAPnP_Solver)
 
@@ -8,112 +8,248 @@ This repository contains the MATLAB simulations and C++ implementation for the p
 > **"BAPnP: A Barycentric Affine Invariant Linear Solver for Robust and Efficient Perspective-$n$-Point Pose Estimation"**  
 > *Under review at **The Visual Computer** (Springer).*
 
-BAPnP is an efficient $O(n)$ solver that leverages geometry-guided base selection to maximize the reference basis volume, providing a reliable initialization for Gauss-Newton refinement, especially in quasi-planar configurations. It maintains 100% success rate down to strict coplanarity while executing in just $4.4\,\mu s$ at $N=10$ in C++.
+# PAGait: Region-Aware Modulation and Cross-Modal Consistency Enhancement for Multi-Modal Gait Recognition
+
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)]()
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)]()
+[![Status](https://img.shields.io/badge/Status-Under%20Review-orange.svg)]()
+
+Official implementation of the paper:
+
+> **PAGait: Region-Aware Modulation and Cross-Modal Consistency Enhancement for Multi-Modal Gait Recognition**  
+> Under review.
 
 ---
 
-## Citation
+# 1. Introduction
 
-If you use this code in your research, please cite the corresponding manuscript:
+This repository provides the official implementation of PAGait, a multi-modal gait recognition framework designed for robust fusion of silhouette sequences and human parsing sequences.
+
+The repository contains:
+
+- Training and testing code
+- Network architecture implementation
+- SAM module and consistency enhancement module
+- Dataset preprocessing scripts
+- Visualization tools
+- Configuration files and checkpoints
+
+Main features of PAGait:
+
+- Structure-aware Adaptive Modulation (SAM)
+- Cross-modal consistency enhancement
+- Multi-modal feature fusion
+- Robust gait representation learning under challenging conditions
+
+---
+
+# 2. Repository Structure
+
+```text
+PAGait/
+├── configs/                    # Configuration files
+├── datasets/                   # Dataset preprocessing scripts
+├── modeling/                   # Model implementation
+│   ├── backbone/               # Backbone networks
+│   ├── modules/                # SAM and fusion modules
+│   ├── losses/                 # Loss functions
+│   └── heads/                  # Classification heads
+├── tools/
+│   ├── train.py                # Training script
+│   ├── test.py                 # Evaluation script
+│   └── visualization.py        # Visualization tools
+├── output/                     # Logs and checkpoints
+├── README.md
+└── requirements.txt
+```
+
+---
+
+# 3. Dataset Preparation
+
+## 3.1 Supported Datasets
+
+The framework supports the following public gait datasets:
+
+- Gait3D
+- CASIA-B
+- OUMVLP
+- GREW
+- SUSTech1K
+
+---
+
+## 3.2 Dataset Directory Structure
+
+Example:
+
+```text
+datasets/
+├── Gait3D/
+│   ├── silhouettes/
+│   ├── parsing/
+│   └── split/
+├── CASIA-B/
+└── OUMVLP/
+```
+
+Each dataset should contain:
+
+- Silhouette sequences
+- Human parsing sequences
+- Training/testing split files
+
+---
+
+## 3.3 Human Parsing Generation
+
+Human parsing sequences can be generated using off-the-shelf human parsing models.
+
+Example workflow:
+
+1. Extract RGB frames
+2. Run human parsing model
+3. Save parsing masks
+4. Convert to training format
+
+---
+
+## 3.4 Data Preprocessing
+
+The preprocessing scripts are located in:
+
+```text
+datasets/
+```
+
+Example:
+
+```bash
+python datasets/preprocess_gait3d.py
+```
+
+---
+
+# 4. Installation
+
+## 4.1 Requirements
+
+- Python 3.8+
+- PyTorch 2.0+
+- CUDA 11.7+ (recommended)
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+# 5. Training
+
+## 5.1 Single GPU Training
+
+```bash
+python tools/train.py \
+    --config configs/gait3d.yaml
+```
+
+---
+
+## 5.2 Multi-GPU Training
+
+```bash
+torchrun --nproc_per_node=4 tools/train.py \
+    --config configs/gait3d.yaml
+```
+
+---
+
+# 6. Evaluation
+
+```bash
+python tools/test.py \
+    --config configs/gait3d.yaml \
+    --checkpoint output/model_best.pth
+```
+
+---
+
+# 7. Visualization
+
+We provide visualization tools for:
+
+- Attention maps
+- Cross-modal response consistency
+- Feature activation statistics
+- Region-aware modulation analysis
+
+Example:
+
+```bash
+python tools/visualization.py \
+    --config configs/gait3d.yaml \
+    --checkpoint output/model_best.pth
+```
+
+---
+
+# 8. Experimental Results
+
+## Gait3D
+
+| Method | Rank-1 | mAP |
+|---|---|---|
+| Baseline | -- | -- |
+| PAGait | -- | -- |
+
+---
+
+## CASIA-B
+
+| Condition | NM | BG | CL |
+|---|---|---|---|
+| PAGait | -- | -- | -- |
+
+---
+
+# 9. Citation
 
 ```bibtex
-@article{luo2025bapnp,
-  title={BAPnP: A Barycentric Affine Invariant Linear Solver for Robust and Efficient Perspective-n-Point Pose Estimation},
-  author={Luo, Peilin and Guo, Yang},
-  journal={Under review at The Visual Computer},
-  year={2025}
+@article{pagait2026,
+  title={PAGait: Region-Aware Modulation and Cross-Modal Consistency Enhancement for Multi-Modal Gait Recognition},
+  author={Author Name},
+  journal={Under Review},
+  year={2026}
 }
 ```
 
 ---
 
-## 1. MATLAB Simulations
+# 10. Acknowledgements
 
-The MATLAB code is located in the `simulations/` directory. It includes the algorithm implementation, ablation studies, and comparisons with state-of-the-art methods.
+This repository is built upon several excellent open-source gait recognition projects, including:
 
-### 1.1 Prerequisites & Setup
+- GaitSet
+- OpenGait
+- GaitPart
+- GaitGL
 
-To run the comparisons, you need to download the baseline algorithms and add them to your MATLAB path:
-
-1. **MLPnP and other algorithms**: Download from [urbste/MLPnP_matlab_toolbox](https://github.com/urbste/MLPnP_matlab_toolbox).
-2. **CPnP**: Download from [LIAS-CUHKSZ/CPnP-A-Consistent-PnP-Solver](https://github.com/LIAS-CUHKSZ/CPnP-A-Consistent-PnP-Solver).
-3. **SRPnP**: Download from (https://github.com/pingwangsky/PnP_tool)
-
-**Setup:**
-Unzip these toolboxes and add their folders (and subfolders) to your MATLAB working path before running the experiments.
-
-### 1.2 Core Algorithms
-
-We provide unified interfaces for different solvers:
-* `BAPnP.m`: Our proposed method (Linear Initialization + Gauss-Newton Refinement).
-* `BAPnP_Coplanar.m`: Our proposed method
-* `pnp_linear_only.m`: Our proposed method (Linear Initialization only).
-* `run_cpnp.m`: Wrapper for the CPnP solver.
-* *(Other wrappers included in the folder)*
-
-### 1.3 Reproducing Paper Figures
-
-Use the following scripts to reproduce the figures presented in the paper:
-
-| Figure in Paper | Description | MATLAB Script |
-| :--- | :--- | :--- |
-| **Fig. 1** | Geometric Comparison (Tetrahedron Volume) | `Tetrahedron.m` |
-| **Fig. 2** | Ablation Studies| `Ablation1.m`, `Ablation2.m` |
-| **Fig. 3** | Robustness to Image Noise | `exp1.m` |
-| **Fig. 4** | Robustness to Point Density | `exp2.m` |
-| **Fig. 5** | Computational Efficiency Plot | `plot_time.m` |
-| **Fig. 6** | Quasi-Planar Stability & Spectral Gap Analysis | `test_spectral_gap_comparison.m`<br>`test_pnp_planarity_performance.m` |
+We sincerely thank the authors for their contributions.
 
 ---
 
-## 2. C++ Implementation
+# 11. License
 
-The C++ source code is located in the `src/` directory. It is designed for real-time performance evaluation and benchmark datasets.
+This project is released under the MIT License.
 
-### 2.1 Source Files
+---
 
-* `src/bapnp.cpp`: The C++ implementation of the BAPnP algorithm.
-* `main_benchmark.cpp`: Runtime comparison against OpenCV implementations.
-* `main_colmap_benchmark.cpp`: Evaluation on the **South Building Dataset**.
-* `main_tum.cpp`: Evaluation on the **TUM RGB-D Dataset**.
+# 12. Contact
 
-### 2.2 Dataset Preparation
+For questions or collaborations, please open an issue or contact:
 
-Before running the real-world benchmarks, please download the required datasets. Due to size constraints, they are not included in this repository.
-
-1. **South Building Dataset**:
-   * **Download**: Visit [COLMAP Datasets](https://colmap.github.io/datasets.html) and download "South Building".
-   * **Setup**: Extract the dataset and ensure the path matches the configuration in `main_colmap_benchmark.cpp` .
-
-2. **TUM RGB-D Dataset**:
-   * **Download**: Visit [TUM RGB-D Benchmark](https://cvg.cit.tum.de/data/datasets/rgbd-dataset/download#freiburg1_desk).
-   * **Sequence**: We use the `freiburg1_desk` sequence for evaluation.
-   * **Setup**: Download the sequence and place it in the working directory or update the path in `main_tum.cpp`.
-     
-### 2.3 Build and Run
-
-Ensure you have a C++ compiler (supports C++11 or higher) and CMake installed.
-
-**Build:**
-
-```bash
-mkdir build
-cd build
-cmake .. 
-make -j
-```
-
-**Runtime Benchmark:**
-```bash
-./run_benchmark
-```
-
-**TUM RGB-D Experiment:**
-```bash
-./run_tum
-```
-
-**South Building (COLMAP) Experiment:**
-```bash
-./run_colmap_bench
+```text
+your_email@example.com
 ```
