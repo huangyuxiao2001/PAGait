@@ -43,7 +43,7 @@ loss_cfg:
     margin: 0.2
     type: TripletLoss
     log_prefix: triplet
-  - loss_term_weights: 0.3             # Softmax 权重降低，防过拟合
+  - loss_term_weights: 1.0             # Softmax 权重降低，防过拟合
     scale: 16
     type: CrossEntropyLoss
     log_prefix: softmax
