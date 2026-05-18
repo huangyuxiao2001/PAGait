@@ -62,20 +62,20 @@ model_cfg:
     blocks: [1, 4, 4, 1]
     C: 2
   SeparateBNNecks:
-    class_num: 158
+    class_num: 159
 
 # =========================
 # 优化器 & Scheduler
 # =========================
 optimizer_cfg:
   solver: AdamW
-  lr: 0.0005                # 小数据集使用适中学习率
+  lr: 0.0002                # 小数据集使用适中学习率
   weight_decay: 0.0001      # 适当权重衰减防过拟合
 
 scheduler_cfg:
   scheduler: CosineAnnealingLR
   warmup_steps: 1000       # 前10000轮保持初始学习率
-  T_max: 10000              # 从10000轮开始，20000轮内完成衰减
+  T_max: 50000              # 从10000轮开始，20000轮内完成衰减
   eta_min: 0.000001         # 最小学习率
 
 # =========================
